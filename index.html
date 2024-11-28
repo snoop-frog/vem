@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Video Playlist</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+        .video-container {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        button {
+            margin: 10px;
+            padding: 20px;
+            font-size: 24px;
+            border-radius: 10px;
+            background-color: #ffcccc;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #ff9999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Baby Playlist</h1>
+    <div id="videoFrame" class="video-container"></div>
+    <div id="buttons">
+        <!-- Buttons to load videos -->
+    </div>
+    <script>
+        const videos = [
+            { id: "M7lc1UVf-VE", title: "Example Video 1" },
+            { id: "dQw4w9WgXcQ", title: "Example Video 2" }
+        ];
+
+        const videoFrame = document.getElementById("videoFrame");
+        const buttonsContainer = document.getElementById("buttons");
+
+        function loadVideo(videoId) {
+            videoFrame.innerHTML = `
+                <iframe 
+                    width="560" 
+                    height="315" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
+                    frameborder="0" 
+                    allow="autoplay; fullscreen" 
+                    allowfullscreen>
+                </iframe>`;
+        }
+
+        videos.forEach(video => {
+            const button = document.createElement("button");
+            button.innerText = video.title;
+            button.onclick = () => loadVideo(video.id);
+            buttonsContainer.appendChild(button);
+        });
+
+        // Load the first video by default
+        loadVideo(videos[0].id);
+    </script>
+</body>
+</html>
