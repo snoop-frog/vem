@@ -7,21 +7,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Baby Video Playlist</title>
     <style>
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            background-color: #f0f8ff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: Arial, sans-serif;
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* Black background for fullscreen mode */
             overflow: hidden; /* Disable scrolling */
-            touch-action: none; /* Disable accidental gestures */
         }
         .video-container {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove border */
         }
         button {
             margin: 10px;
@@ -31,23 +35,15 @@
             background-color: #ffcccc;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #ff9999;
         }
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
-    <h1>Baby Playlist</h1>
     <div id="videoFrame" class="video-container"></div>
-    <div id="buttons">
-        <!-- Buttons to load videos dynamically -->
-    </div>
+    <div id="buttons"></div>
     <script>
         // List of YouTube videos
         const videos = [
@@ -58,12 +54,10 @@
         const videoFrame = document.getElementById("videoFrame");
         const buttonsContainer = document.getElementById("buttons");
 
-        // Function to load a video into the iframe
+        // Function to load a video
         function loadVideo(videoId) {
             videoFrame.innerHTML = `
                 <iframe 
-                    width="100%" 
-                    height="315" 
                     src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" 
                     frameborder="0" 
                     allow="autoplay; fullscreen" 
@@ -82,14 +76,12 @@
         // Load the first video by default
         loadVideo(videos[0].id);
 
-        // Enable full-screen mode when the page is tapped
+        // Enable fullscreen mode on interaction
         document.addEventListener("click", () => {
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen();
             } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen(); // Safari
+                document.documentElement.webkitRequestFullscreen();
             }
         });
     </script>
-</body>
-</html>
