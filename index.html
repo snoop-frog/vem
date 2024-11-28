@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Baby Video Playlist</title>
     <style>
-        body, html {
+        html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #000; /* Black background for fullscreen mode */
-            overflow: hidden; /* Disable scrolling */
+            background-color: #000; /* Black for better video display */
+            overflow: hidden; /* Prevent scrolling */
+            touch-action: none; /* Disable gestures */
+            -webkit-overflow-scrolling: none; /* Prevent overscroll on iOS */
+            overscroll-behavior: none; /* Stops pull-to-refresh or bounce */
         }
         .video-container {
             width: 100%;
@@ -25,25 +28,12 @@
         iframe {
             width: 100%;
             height: 100%;
-            border: none; /* Remove border */
-        }
-        button {
-            margin: 10px;
-            padding: 20px;
-            font-size: 24px;
-            border-radius: 10px;
-            background-color: #ffcccc;
             border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #ff9999;
         }
     </style>
 </head>
 <body>
     <div id="videoFrame" class="video-container"></div>
-    <div id="buttons"></div>
     <script>
         // List of YouTube videos
         const videos = [
@@ -52,7 +42,6 @@
         ];
 
         const videoFrame = document.getElementById("videoFrame");
-        const buttonsContainer = document.getElementById("buttons");
 
         // Function to load a video
         function loadVideo(videoId) {
@@ -65,23 +54,22 @@
                 </iframe>`;
         }
 
-        // Generate buttons for each video
-        videos.forEach(video => {
-            const button = document.createElement("button");
-            button.innerText = video.title;
-            button.onclick = () => loadVideo(video.id);
-            buttonsContainer.appendChild(button);
-        });
-
         // Load the first video by default
         loadVideo(videos[0].id);
+
+        // Prevent touch gestures like pull-down or swipe
+        document.addEventListener('touchmove', function (event) {
+            event.preventDefault();
+        }, { passive: false });
 
         // Enable fullscreen mode on interaction
         document.addEventListener("click", () => {
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen();
             } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
+                document.documentElement.webkitRequestFullscreen(); // Safari
             }
         });
     </script>
+</body>
+</html>
