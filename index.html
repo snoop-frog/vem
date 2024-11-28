@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby Video Player</title>
+    <title>Google Drive Video Player</title>
     <style>
         body, html {
             margin: 0;
@@ -61,32 +61,12 @@
             position: relative;
         }
 
-        video {
+        iframe {
             width: 95%;
             height: 95%;
             border-radius: 15px;
-            background-color: black;
-        }
-
-        .video-controls {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 30px;
-            padding: 5px 15px;
-        }
-
-        .video-controls button {
-            background: none;
             border: none;
-            color: white;
-            font-size: 24px;
-            margin: 0 10px;
-            cursor: pointer;
+            background-color: black;
         }
 
         .thumbnail-grid {
@@ -151,25 +131,11 @@
             <img src="https://via.placeholder.com/50/4ECDC4?text=🎬" alt="All">
             <span>All</span>
         </div>
-        <div class="icon" onclick="filterVideos('educational')">
-            <img src="https://via.placeholder.com/50/4ECDC4?text=📚" alt="Educational">
-            <span>Educational</span>
-        </div>
-        <div class="icon" onclick="filterVideos('music')">
-            <img src="https://via.placeholder.com/50/4ECDC4?text=🎵" alt="Music">
-            <span>Music</span>
-        </div>
     </div>
 
     <div class="video-player">
-        <video id="videoPlayer" controls>
-            <source id="videoSource" src="" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="video-controls">
-            <button onclick="skipBack()">⏪</button>
-            <button onclick="toggleMute()">🔊</button>
-            <button onclick="skipForward()">⏩</button>
+        <div id="videoPlayer">
+            <!-- Video iframe will be dynamically inserted here -->
         </div>
     </div>
 
@@ -182,7 +148,6 @@
         const CORS_PROXY = 'https://corsproxy.io/?';
         let videos = [];
         const videoPlayer = document.getElementById("videoPlayer");
-        const videoSource = document.getElementById("videoSource");
         const thumbnailGrid = document.getElementById("thumbnailGrid");
 
         async function fetchFolderContents() {
@@ -190,15 +155,16 @@
                 const url = CORS_PROXY + encodeURIComponent(`https://drive.google.com/embeddedfolderview?id=${FOLDER_ID}#list`);
                 const response = await fetch(url);
                 const text = await response.text();
-                const videoRegex = /\/file\/d\/([^/]+)\/view\?usp=drive_link/g;
+
+                // Extract video links using regex
+                const videoRegex = /\/file\/d\/([^/]+)\/view/g;
                 const matches = [...text.matchAll(videoRegex)];
 
                 videos = matches.map((match, index) => ({
                     id: match[1],
                     title: `Video ${index + 1}`,
-                    src: `https://drive.google.com/uc?export=download&id=${match[1]}`,
-                    thumbnail: `https://drive.google.com/thumbnail?id=${match[1]}`,
-                    category: 'all'
+                    src: `https://drive.google.com/file/d/${match[1]}/preview`, // Embed URL
+                    thumbnail: `https://drive.google.com/thumbnail?id=${match[1]}&sz=w320-h240`,
                 }));
 
                 populateThumbnails();
@@ -230,28 +196,7 @@
         }
 
         function playVideo(videoSrc) {
-            videoSource.src = videoSrc;
-            videoPlayer.load();
-            videoPlayer.play();
-        }
-
-        function filterVideos(category) {
-            const filteredVideos = videos.filter(video => 
-                category === 'all' || video.category === category
-            );
-            populateThumbnails(filteredVideos);
-        }
-
-        function skipBack() {
-            videoPlayer.currentTime = Math.max(0, videoPlayer.currentTime - 10);
-        }
-
-        function skipForward() {
-            videoPlayer.currentTime = Math.min(videoPlayer.duration, videoPlayer.currentTime + 10);
-        }
-
-        function toggleMute() {
-            videoPlayer.muted = !videoPlayer.muted;
+            videoPlayer.innerHTML = `<iframe src="${videoSrc}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
         }
 
         fetchFolderContents();
