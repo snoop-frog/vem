@@ -5,76 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Baby Video Playlist</title>
+    <title>Baby Video App</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #000; /* Black background for distraction-free view */
-            overflow: hidden; /* Disable scrolling */
+            background-color: #000;
+            overflow: hidden;
         }
         .video-container {
             width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            height: 60%; /* Adjust this for a fixed video size */
+            background-color: #000;
         }
         iframe {
             width: 100%;
             height: 100%;
-            border: none; /* No border for iframe */
-        }
-        button {
-            margin: 10px;
-            padding: 20px;
-            font-size: 24px;
-            border-radius: 10px;
-            background-color: #ffcccc;
             border: none;
-            cursor: pointer;
         }
-        button:hover {
-            background-color: #ff9999;
+        .playlist {
+            width: 100%;
+            height: 40%; /* Playlist occupies the remaining space */
+            background-color: #222;
+            display: flex;
+            flex-direction: column;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+        .playlist button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 15px;
+            margin: 5px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .playlist button:hover {
+            background-color: #555;
         }
     </style>
 </head>
 <body>
-    <div id="videoFrame" class="video-container"></div>
-    <div id="buttons"></div>
+    <div class="video-container" id="videoContainer"></div>
+    <div class="playlist" id="playlist"></div>
+
     <script>
-        // List of YouTube videos
         const videos = [
-            { id: "M7lc1UVf-VE", title: "Example Video 1" },
-            { id: "dQw4w9WgXcQ", title: "Example Video 2" }
+            { id: "M7lc1UVf-VE", title: "Baby Song 1" },
+            { id: "dQw4w9WgXcQ", title: "Baby Song 2" },
+            { id: "eVTXPUF4Oz4", title: "Baby Song 3" }
         ];
 
-        const videoFrame = document.getElementById("videoFrame");
-        const buttonsContainer = document.getElementById("buttons");
+        let player;
 
-        // Function to load a video
-        function loadVideo(videoId) {
-            videoFrame.innerHTML = `
-                <iframe 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&controls=0&modestbranding=1" 
-                    frameborder="0" 
-                    allow="autoplay; fullscreen" 
-                    allowfullscreen>
-                </iframe>`;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('videoContainer', {
+                videoId: videos[0].id, // Load the first video
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0,
+                    modestbranding: 1,
+                    rel: 0,
+                    disablekb: 1, // Disable keyboard shortcuts
+                    iv_load_policy: 3, // No annotations
+                    showinfo: 0,
+                    fs: 0 // Disable fullscreen
+                },
+                events: {
+                    onReady: (event) => event.target.playVideo()
+                }
+            });
         }
 
-        // Generate buttons for each video
-        videos.forEach(video => {
+        function loadVideo(videoId) {
+            player.loadVideoById(videoId);
+        }
+
+        // Populate the playlist
+        const playlistContainer = document.getElementById("playlist");
+        videos.forEach((video) => {
             const button = document.createElement("button");
             button.innerText = video.title;
             button.onclick = () => loadVideo(video.id);
-            buttonsContainer.appendChild(button);
+            playlistContainer.appendChild(button);
         });
 
-        // Load the first video by default
-        loadVideo(videos[0].id);
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
     </script>
 </body>
 </html>
