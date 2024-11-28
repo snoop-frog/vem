@@ -3,143 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Video Player</title>
+    <title>Kiosk Video Player with Search</title>
     <style>
+        /* General Reset */
         body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f4f8;
-            overflow: hidden;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background-color: #f7f9fc;
             display: flex;
             flex-direction: column;
+            align-items: center;
             touch-action: manipulation;
         }
 
+        /* Navbar */
         .navbar {
             width: 100%;
             height: 10vh;
             background-color: #4ecdc4;
             display: flex;
             align-items: center;
-            justify-content: space-around;
-            padding: 0 10px;
-            box-sizing: border-box;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .icon {
             font-size: 16px;
-            text-align: center;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            justify-content: center;
             color: white;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .navbar .icon:active {
-            transform: scale(0.9);
         }
 
         .navbar .icon img {
             width: 40px;
             height: 40px;
-            margin-bottom: 5px;
             border-radius: 50%;
-            background-color: rgba(255,255,255,0.2);
+            background-color: rgba(255,255,255,0.3);
             padding: 5px;
         }
 
-        .video-player {
-            width: 100%;
-            height: 50vh;
-            background-color: #333;
+        /* Search Box */
+        .search-box {
+            display: none;
+            width: 90%;
+            max-width: 800px;
+            margin: 10px 0;
             display: flex;
-            align-items: center;
             justify-content: center;
-            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #4ecdc4;
+            border-radius: 15px;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Video Player */
+        .video-player {
+            width: 90%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+            background-color: #333;
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         iframe {
-            width: 95%;
-            height: 95%;
-            border-radius: 15px;
+            width: 100%;
+            height: 100%;
             border: none;
             background-color: black;
         }
 
-        .thumbnail-grid {
-            width: 100%;
-            height: 40vh;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow-y: auto;
+        /* Horizontal Thumbnail Carousel */
+        .thumbnail-carousel {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
             gap: 10px;
-            background-color: #f9f9f9;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            padding: 10px 5px;
+            box-sizing: border-box;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+        .thumbnail-carousel::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for WebKit browsers */
         }
 
         .thumbnail {
-            width: 28%;
-            aspect-ratio: 1;
+            flex: 0 0 calc(25% - 10px); /* Four thumbnails per row */
+            max-width: calc(25% - 10px);
+            aspect-ratio: 16/9;
             background-color: white;
-            border-radius: 15px;
+            border-radius: 10px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             text-align: center;
-            transition: transform 0.2s;
-        }
-
-        .thumbnail:active {
-            transform: scale(0.95);
+            transition: transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .thumbnail img {
             width: 100%;
-            height: 150px;
+            height: 70%;
             object-fit: cover;
-            border-bottom: 3px solid #4ecdc4;
         }
 
         .thumbnail-title {
-            padding: 8px;
-            font-size: 14px;
+            padding: 5px;
+            font-size: 12px;
+            font-weight: bold;
             color: #333;
+            text-align: center;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .loading {
-            width: 100%;
-            text-align: center;
-            padding: 20px;
-            color: #333;
+        .thumbnail:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            /* Adjust thumbnail size for smaller screens */
+            .thumbnail {
+                flex: 0 0 calc(33.33% - 10px); /* Three thumbnails per row */
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Adjust thumbnail size for very small screens */
+            .thumbnail {
+                flex: 0 0 calc(50% - 10px); /* Two thumbnails per row */
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Navbar -->
     <div class="navbar">
-        <div class="icon" onclick="filterVideos('all')">
-            <img src="https://via.placeholder.com/50/4ECDC4?text=🎬" alt="All">
-            <span>All</span>
+        <div class="icon" onclick="toggleSearchBar()">
+            <img src="https://via.placeholder.com/40/4ECDC4?text=🔍" alt="Search">
         </div>
     </div>
 
+    <!-- Search Box -->
+    <div class="search-box" id="searchBox">
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search videos..."
+            oninput="searchVideos()"
+        />
+    </div>
+
+    <!-- Video Player -->
     <div class="video-player">
         <div id="videoPlayer">
-            <!-- Video iframe will be dynamically inserted here -->
+            <!-- Video iframe dynamically added here -->
         </div>
     </div>
 
-    <div class="thumbnail-grid" id="thumbnailGrid">
+    <!-- Horizontal Thumbnail Carousel -->
+    <div class="thumbnail-carousel" id="thumbnailCarousel">
         Loading videos...
     </div>
 
@@ -148,57 +193,78 @@
         const CORS_PROXY = 'https://corsproxy.io/?';
         let videos = [];
         const videoPlayer = document.getElementById("videoPlayer");
-        const thumbnailGrid = document.getElementById("thumbnailGrid");
+        const thumbnailCarousel = document.getElementById("thumbnailCarousel");
+        const searchBox = document.getElementById("searchBox");
+        const searchInput = document.getElementById("searchInput");
 
+        // Toggle Search Bar
+        function toggleSearchBar() {
+            searchBox.style.display = searchBox.style.display === 'flex' ? 'none' : 'flex';
+            if (searchBox.style.display === 'flex') {
+                searchInput.focus();
+            }
+        }
+
+        // Fetch videos from Google Drive
         async function fetchFolderContents() {
             try {
                 const url = CORS_PROXY + encodeURIComponent(`https://drive.google.com/embeddedfolderview?id=${FOLDER_ID}#list`);
                 const response = await fetch(url);
                 const text = await response.text();
 
-                // Extract video links using regex
-                const videoRegex = /\/file\/d\/([^/]+)\/view/g;
+                // Extract video links and file names using regex
+                const videoRegex = /\/file\/d\/([^/]+)\/view.*?>([^<]+)<\/div>/gs;
                 const matches = [...text.matchAll(videoRegex)];
 
-                videos = matches.map((match, index) => ({
+                videos = matches.map((match) => ({
                     id: match[1],
-                    title: `Video ${index + 1}`,
-                    src: `https://drive.google.com/file/d/${match[1]}/preview`, // Embed URL
+                    title: match[2].trim() || "Untitled Video",
+                    src: `https://drive.google.com/file/d/${match[1]}/preview`,
                     thumbnail: `https://drive.google.com/thumbnail?id=${match[1]}&sz=w320-h240`,
                 }));
 
-                populateThumbnails();
+                populateThumbnails(videos);
                 if (videos.length > 0) {
                     playVideo(videos[0].src);
                 }
             } catch (error) {
                 console.error('Error fetching folder contents:', error);
-                thumbnailGrid.innerHTML = 'Error loading videos. Please check the folder link.';
+                thumbnailCarousel.innerHTML = 'Error loading videos. Please check the folder link.';
             }
         }
 
-        function populateThumbnails(filteredVideos = videos) {
-            thumbnailGrid.innerHTML = '';
-            if (filteredVideos.length === 0) {
-                thumbnailGrid.innerHTML = 'No videos found.';
-                return;
-            }
-            filteredVideos.forEach((video) => {
+        // Populate Thumbnails
+        function populateThumbnails(videoList) {
+            thumbnailCarousel.innerHTML = '';
+            videoList.forEach((video) => {
                 const thumbnail = document.createElement("div");
                 thumbnail.className = "thumbnail";
                 thumbnail.innerHTML = `
                     <img src="${video.thumbnail}" alt="${video.title}">
                     <div class="thumbnail-title">${video.title}</div>
                 `;
-                thumbnail.onclick = () => playVideo(video.src);
-                thumbnailGrid.appendChild(thumbnail);
+                thumbnail.onclick = () => {
+                    playVideo(video.src);
+                };
+                thumbnailCarousel.appendChild(thumbnail);
             });
         }
 
+        // Play Video
         function playVideo(videoSrc) {
-            videoPlayer.innerHTML = `<iframe src="${videoSrc}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+            videoPlayer.innerHTML = `<iframe src="${videoSrc}" allowfullscreen></iframe>`;
         }
 
+        // Search Videos
+        function searchVideos() {
+            const query = searchInput.value.toLowerCase();
+            const filteredVideos = videos.filter((video) =>
+                video.title.toLowerCase().includes(query)
+            );
+            populateThumbnails(filteredVideos);
+        }
+
+        // Fetch and display videos
         fetchFolderContents();
     </script>
 </body>
